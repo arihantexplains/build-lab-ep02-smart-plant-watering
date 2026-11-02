@@ -1,0 +1,57 @@
+name: Bug report
+description: Something in the sketch, the web API, a plugin, a flow or the docs doesn't work as described.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. **Please remove Wi-Fi details, device keys, tenant IDs, client IDs, secrets, tokens, phone numbers, email addresses, environment URLs and real names** from everything you paste below.
+        Security problems: please don't use this form, see SECURITY.md.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part?
+      options:
+        - ESP32 sketch
+        - Web API
+        - Plugins (C#)
+        - Dataverse schema or script
+        - Scheduled watering flow
+        - Send WhatsApp flow
+        - Canvas app
+        - Setup or docs
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: What you did, with placeholder values.
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Messages
+      description: Serial Monitor lines, the web API log line, or the Result column of the message row. Scrub anything that identifies you.
+      render: text
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: For example ESP32 core 3.3, ArduinoJson 7.4, Node 20, .NET SDK 8.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I tested in a demo environment, and hardware on the bench or with an electrician's wiring.
+          required: true
+        - label: I removed keys, IDs, secrets, phone numbers, emails, URLs and real names from this issue.
+          required: true

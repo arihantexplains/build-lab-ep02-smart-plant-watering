@@ -1,0 +1,129 @@
+{
+  "_comment": "Everything the system needs in Dataverse. Placeholders only, no values. create-schema.mjs reads this file. Change the prefix in every name if your publisher prefix is not cr.",
+  "publisherPrefix": "cr",
+  "solutionUniqueName": "SmartWatering",
+  "tables": [
+    {
+      "schemaName": "cr_SwitchCommand",
+      "logicalName": "cr_switchcommand",
+      "entitySetName": "cr_switchcommands",
+      "displayName": "Switch Command",
+      "pluralName": "Switch Commands",
+      "description": "One row per ON/OFF order from the canvas app or the schedule. The newest row per switch wins.",
+      "primaryName": { "schemaName": "cr_Name", "displayName": "Name", "maxLength": 100 },
+      "columns": [
+        {
+          "schemaName": "cr_Switch",
+          "type": "choice",
+          "displayName": "Switch",
+          "description": "Which relay this order is for.",
+          "required": true,
+          "options": [
+            { "value": 100000000, "label": "Motor" },
+            { "value": 100000001, "label": "Ground floor solenoid" },
+            { "value": 100000002, "label": "First floor solenoid" },
+            { "value": 100000003, "label": "Second floor solenoid" }
+          ]
+        },
+        {
+          "schemaName": "cr_Status",
+          "type": "yesno",
+          "displayName": "Status",
+          "description": "ON = Yes (true), OFF = No (false).",
+          "trueLabel": "ON",
+          "falseLabel": "OFF",
+          "defaultValue": false
+        },
+        {
+          "schemaName": "cr_Source",
+          "type": "text",
+          "displayName": "Source",
+          "description": "Optional: App or Schedule, for the history.",
+          "maxLength": 50
+        }
+      ]
+    },
+    {
+      "schemaName": "cr_SendWhatsAppMessage",
+      "logicalName": "cr_sendwhatsappmessage",
+      "entitySetName": "cr_sendwhatsappmessages",
+      "displayName": "Send WhatsApp Message",
+      "pluralName": "Send WhatsApp Messages",
+      "description": "One row per WhatsApp message. Send = Yes starts the send flow.",
+      "primaryName": { "schemaName": "cr_Name", "displayName": "Name", "maxLength": 200 },
+      "columns": [
+        { "schemaName": "cr_MessageText", "type": "memo", "displayName": "Message text", "description": "The text to send.", "maxLength": 4000, "required": true },
+        { "schemaName": "cr_From", "type": "text", "displayName": "From", "description": "Who or what created the message, for example Smart watering.", "maxLength": 100 },
+        { "schemaName": "cr_Receiver", "type": "text", "displayName": "Receiver", "description": "Empty or All admins = every admin number. Otherwise the receiver's name.", "maxLength": 100 },
+        { "schemaName": "cr_ReceiverNumber", "type": "text", "displayName": "Receiver number", "description": "Mobile number with the country code. When filled, only this number gets the message.", "maxLength": 20 },
+        { "schemaName": "cr_Send", "type": "yesno", "displayName": "Send", "description": "Yes starts the flow. The plugin sets it back to No.", "trueLabel": "Yes", "falseLabel": "No", "defaultValue": false },
+        {
+          "schemaName": "cr_DeliveryStatus",
+          "type": "choice",
+          "displayName": "Delivery status",
+          "description": "Written by the plugin.",
+          "defaultValue": 100000000,
+          "options": [
+            { "value": 100000000, "label": "Pending" },
+            { "value": 100000001, "label": "Sent" },
+            { "value": 100000002, "label": "Partly sent" },
+            { "value": 100000003, "label": "Failed" }
+          ]
+        },
+        { "schemaName": "cr_Result", "type": "memo", "displayName": "Result", "description": "One line per recipient (numbers masked), written by the plugin.", "maxLength": 4000 },
+        { "schemaName": "cr_SentOn", "type": "datetime", "displayName": "Sent on", "description": "When the plugin last tried to send." }
+      ]
+    }
+  ],
+  "environmentVariables": [
+    { "schemaName": "cr_WhatsAppAdminNumbers", "displayName": "WhatsApp admin numbers", "type": "String", "description": "Comma separated mobile numbers, country code first, digits only. Example: 91XXXXXXXXXX,91XXXXXXXXXX", "valueFrom": "WA_ADMIN_NUMBERS" },
+    { "schemaName": "cr_WhatsAppPhoneNumberId", "displayName": "WhatsApp phone number ID", "type": "String", "description": "Phone number ID from the Meta app (WhatsApp > API Setup). Digits, not the phone number.", "valueFrom": "WA_PHONE_NUMBER_ID" },
+    { "schemaName": "cr_WhatsAppAccessToken", "displayName": "WhatsApp access token", "type": "Secret", "description": "Meta access token. Secret type = a reference to an Azure Key Vault secret. A String type works for a quick demo but anyone who can read environment variables can read it.", "valueFrom": "WA_TOKEN_KEYVAULT_REF" },
+    { "schemaName": "cr_WhatsAppApiVersion", "displayName": "WhatsApp Graph API version", "type": "String", "description": "Graph API version, for example v21.0. Check Meta's changelog for the current one.", "defaultValue": "v21.0" },
+    { "schemaName": "cr_WhatsAppTemplateName", "displayName": "WhatsApp template name", "type": "String", "description": "Approved template with one body placeholder {{1}}. Empty = plain text (only works inside the 24 hour window).", "valueFrom": "WA_TEMPLATE_NAME" },
+    { "schemaName": "cr_WhatsAppTemplateLanguage", "displayName": "WhatsApp template language", "type": "String", "description": "Language code of the template, for example en or en_US.", "defaultValue": "en" }
+  ],
+  "customApis": [
+    {
+      "uniqueName": "cr_GetSwitchStates",
+      "displayName": "Get switch states",
+      "description": "Returns the four switch states from the newest Switch Command row per switch.",
+      "isFunction": true,
+      "bindingType": "Global",
+      "pluginType": "SmartWatering.Plugins.GetSwitchStatesPlugin",
+      "requestParameters": [],
+      "responseProperties": [
+        { "uniqueName": "Motor", "type": "Boolean", "description": "Motor wanted ON." },
+        { "uniqueName": "GroundFloor", "type": "Boolean", "description": "Ground floor solenoid wanted ON." },
+        { "uniqueName": "FirstFloor", "type": "Boolean", "description": "First floor solenoid wanted ON." },
+        { "uniqueName": "SecondFloor", "type": "Boolean", "description": "Second floor solenoid wanted ON." }
+      ]
+    },
+    {
+      "uniqueName": "cr_SendWhatsAppMessage",
+      "displayName": "Send WhatsApp message",
+      "description": "Sends one Send WhatsApp Message row through the Meta WhatsApp Cloud API and writes the result back.",
+      "isFunction": false,
+      "bindingType": "Global",
+      "pluginType": "SmartWatering.Plugins.SendWhatsAppMessagePlugin",
+      "requestParameters": [
+        { "uniqueName": "MessageId", "type": "Guid", "isOptional": false, "description": "ID of the Send WhatsApp Message row." }
+      ],
+      "responseProperties": [
+        { "uniqueName": "SentCount", "type": "Integer", "description": "Messages Meta accepted." },
+        { "uniqueName": "FailedCount", "type": "Integer", "description": "Messages that failed or were skipped." },
+        { "uniqueName": "Result", "type": "String", "description": "One line per recipient, numbers masked." }
+      ]
+    }
+  ],
+  "pluginSteps": [
+    {
+      "pluginType": "SmartWatering.Plugins.SwitchCommandNotifyPlugin",
+      "message": "Create",
+      "table": "cr_switchcommand",
+      "stage": "PostOperation (40)",
+      "mode": "Asynchronous",
+      "note": "Register with the Plugin Registration Tool. The two Custom API plugins need no step."
+    }
+  ]
+}

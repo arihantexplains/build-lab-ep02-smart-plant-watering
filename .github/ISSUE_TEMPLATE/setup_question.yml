@@ -1,0 +1,23 @@
+name: Setup question
+description: Stuck on a step in the setup guide or the video.
+labels: [question]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before asking, check the Troubleshooting and FAQ sections in the README and docs/PLACEHOLDERS.md.
+        **Remove Wi-Fi details, device keys, tenant IDs, client IDs, secrets, tokens, phone numbers, email addresses, environment URLs and real names** from anything you paste.
+  - type: input
+    id: step
+    attributes:
+      label: Which step?
+      description: For example "docs/setup.md step 4" or a video timestamp.
+    validations:
+      required: true
+  - type: textarea
+    id: question
+    attributes:
+      label: Your question
+      description: What you did, what you saw, and what you tried.
+    validations:
+      required: true

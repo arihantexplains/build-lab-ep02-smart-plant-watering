@@ -1,0 +1,33 @@
+# Build output
+bin/
+obj/
+*.user
+.vs/
+.vscode/
+TestResults/
+
+# Arduino: your real Wi-Fi, device key and certificate. Only secrets.example.h belongs in the repo.
+secrets.h
+build/
+
+# Node
+node_modules/
+
+# Signing keys and credentials: never commit these
+*.snk
+*.pfx
+*.pem
+*.key
+*.cer
+
+# Real settings. Only the samples belong in the repo.
+appsettings.json
+appsettings.*.json
+!appsettings.sample.json
+deploymentsettings*.json
+*.env
+.env*
+!.env.sample
+
+# Solution exports can carry environment variable values
+*.zip
