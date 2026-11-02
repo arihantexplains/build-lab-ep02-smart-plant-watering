@@ -40,6 +40,8 @@ const label = text => ({
   LocalizedLabels: [{ '@odata.type': 'Microsoft.Dynamics.CRM.LocalizedLabel', Label: text, LanguageCode: 1033 }],
 });
 const required = r => ({ Value: r ? 'ApplicationRequired' : 'None' });
+// OData lookup binding key, for example PluginTypeId + '@' + 'odata.bind'.
+const bind = navigationProperty => navigationProperty + '@' + 'odata.bind';
 const ENV_TYPES = { String: 100000000, Number: 100000001, Boolean: 100000002, JSON: 100000003, Secret: 100000005 };
 const API_TYPES = { Boolean: 0, DateTime: 1, Decimal: 2, Entity: 3, EntityCollection: 4, EntityReference: 5, Float: 6, Integer: 7, Money: 8, Picklist: 9, String: 10, StringArray: 11, Guid: 12 };
 
@@ -183,7 +185,7 @@ for (const v of schema.environmentVariables) {
   if (value && defId) {
     const r = await call('POST', 'environmentvariablevalues', {
       schemaname: `${v.schemaName}_value`, value,
-      'EnvironmentVariableDefinitionId@odata.bind': `/environmentvariabledefinitions(${defId})`,
+      [bind('EnvironmentVariableDefinitionId')]: `/environmentvariabledefinitions(${defId})`,
     });
     step(r.ok, `  value for ${v.schemaName}`, r.message);
   }
@@ -200,7 +202,7 @@ for (const a of schema.customApis) {
   const r = await call('POST', 'customapis', {
     uniquename: a.uniqueName, name: a.uniqueName, displayname: a.displayName, description: a.description,
     bindingtype: 0, isfunction: a.isFunction, isprivate: false, allowedcustomprocessingsteptype: 0,
-    ...(type ? { 'PluginTypeId@odata.bind': `/plugintypes(${type.plugintypeid})` } : {}),
+    ...(type ? { [bind('PluginTypeId')]: `/plugintypes(${type.plugintypeid})` } : {}),
     CustomAPIRequestParameters: a.requestParameters.map(p => ({
       uniquename: p.uniqueName, name: `${a.uniqueName}.${p.uniqueName}`, displayname: p.uniqueName,
       description: p.description, type: API_TYPES[p.type], isoptional: !!p.isOptional,
