@@ -26,7 +26,8 @@ It has run at our home since 2023; this is the clean, safer v2, rebuilt step by 
 <!-- VIDEO: replace the next line with the YouTube link after upload -->
 **Coming soon, link added after upload.** Subscribe at [youtube.com/@arihant.explains](https://www.youtube.com/@arihant.explains) to catch it.
 
-<!-- TODO(thumbnail): add the video thumbnail here as docs/images/thumbnail.png, linked to the video, when the video is live -->
+<img src="docs/images/thumbnail.png" alt="Smart Plant Watering video thumbnail" width="640">
+<!-- THUMBNAIL: link this image to the video once it is live -->
 
 ## What it achieves
 

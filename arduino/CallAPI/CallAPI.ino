@@ -90,9 +90,11 @@ void allOff() {
 void applyWanted() {
   uint32_t now = millis();
 
-  // Valves: open at once; close only when the motor is not pushing into them.
-  for (int i = 1; i < SWITCH_COUNT; i++) {
+  // Valves: open first (so a hand-over from one floor to the next never leaves the motor
+  // with every tap shut), then close the ones the app turned off.
+  for (int i = 1; i < SWITCH_COUNT; i++)
     if (sw[i].want && !sw[i].latched) setRelay(i, true);
+  for (int i = 1; i < SWITCH_COUNT; i++) {
     if (!sw[i].want && sw[i].isOn) {
       bool lastValve = (openValves() == 1);
       if (lastValve && sw[MOTOR].isOn) setRelay(MOTOR, false);
