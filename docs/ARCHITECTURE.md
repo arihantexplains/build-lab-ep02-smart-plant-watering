@@ -59,7 +59,7 @@ flowchart LR
 
 ![One call instead of four](images/one-call-api.png)
 
-The 2023 version asked the cloud once per switch, plus extra calls for notifications. Now the board makes one HTTPS call and gets four booleans. Dataverse sign-in, OData and the "newest row per switch" rule stay on the server. You can change the table, the logic or the alert rules without touching the device. More in [before-after.md](before-after.md).
+The board makes one HTTPS call and gets four booleans, instead of one query per switch. Dataverse sign-in, OData and the "newest row per switch" rule stay on the server. You can change the table, the logic or the alert rules without touching the device.
 
 The web API can work out the answer in two ways (`DATAVERSE_READ`):
 

@@ -1,19 +1,17 @@
 /*
-  CallAPI.ino  -  Smart plant watering, ESP32 + 4-channel relay board (v2, 2026)
+  CallAPI.ino  -  Smart plant watering, ESP32 + 4-channel relay board
 
-  Modernised from the original CallAPI.ino (2023) that has watered our plants since then.
-
-  What changed from v1, and why
-  - One HTTPS call per poll instead of three GETs plus notification calls per loop.
-    The web API answers with four true/false values: motor, groundFloor, firstFloor, secondFloor.
-  - Notifications moved to the cloud (a Dataverse plugin creates the WhatsApp message row),
+  How it works
+  - One HTTPS call per poll. The web API answers with four true/false values:
+    motor, groundFloor, firstFloor, secondFloor.
+  - Notifications live in the cloud (a Dataverse plugin creates the WhatsApp message row),
     so the board only does one job: drive the relays.
   - Secrets in secrets.h (never committed), every setting in config.h.
   - HTTPS with the certificate checked and a device key, timeouts on every call.
   - Wi-Fi reconnect without blocking the loop forever.
   - Safety on the board: relays OFF at boot, motor only with a tap open (2 s valve lead),
     10 minute hard limit, everything OFF after 10 failed polls in a row.
-  - Relay pins moved off GPIO 12 and 14 (see config.h).
+  - Relay pins with no boot role (see config.h).
 
   API
   GET https://YOUR-API-NAME.azurewebsites.net/api/switches     header x-device-key: <DEVICE_KEY>
@@ -196,7 +194,7 @@ void setup() {
   Serial.begin(115200);
   delay(300);
   Serial.println();
-  Serial.println("[BOOT] CallAPI v2, all relays OFF");
+  Serial.println("[BOOT] CallAPI, all relays OFF");
 
   secureClient.setCACert(ROOT_CA);
   // secureClient.setInsecure();   // TEST ONLY: skips the certificate check. Never ship this.

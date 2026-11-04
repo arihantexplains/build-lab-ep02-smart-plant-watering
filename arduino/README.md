@@ -1,4 +1,4 @@
-# ESP32 sketch: CallAPI v2
+# ESP32 sketch: CallAPI
 
 One ESP32 on home Wi-Fi drives a 4-channel relay board: the Motor (main pump) and one solenoid each for the ground, first and second floor drip lines. Every 1.5 seconds it asks the web API for four booleans and sets the relays (true = ON), with its own safety rules on top. The board never talks to Dataverse and holds no Dataverse credentials.
 
@@ -22,7 +22,7 @@ One ESP32 on home Wi-Fi drives a 4-channel relay board: the Motor (main pump) an
 | GND | GND | Common ground for the relay inputs |
 | 5V / VIN | VCC | Relay board logic supply (check your board) |
 
-These pins are plain outputs with no boot role. The 2023 version used GPIO 12 and 14: GPIO 12 is a boot strapping pin and GPIO 14 pulses at boot, so a relay could stop the board from booting or click on for a moment.
+These pins are plain outputs with no boot role. Avoid GPIO 12 and 14 for relays: GPIO 12 is a boot strapping pin and GPIO 14 pulses at boot, so a relay could stop the board from booting or click on for a moment.
 
 Most relay boards switch ON when the input is LOW. If yours switches ON with HIGH, set `RELAY_ACTIVE_LOW` to `false` in `config.h`.
 
@@ -74,7 +74,7 @@ A missing key counts as false. Any error, timeout or bad JSON counts as a failed
 This is a **sample** of what the Serial Monitor shows, with IDE timestamps on: one manual run from the app, then an API outage. It is written to show the messages, not a live capture.
 
 ```text
-09:40:58.102 -> [BOOT] CallAPI v2, all relays OFF
+09:40:58.102 -> [BOOT] CallAPI, all relays OFF
 09:40:58.405 -> [WIFI] connecting......
 09:41:01.511 -> [WIFI] connected, IP 192.168.1.42, signal -58 dBm
 09:41:30.874 -> [POLL] Motor wants ON

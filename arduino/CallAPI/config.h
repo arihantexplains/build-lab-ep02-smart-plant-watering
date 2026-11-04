@@ -2,7 +2,7 @@
 #pragma once
 
 // ---------------- Relay pins ----------------
-// The 2023 version used GPIO 13, 12 and 14. Two of those are risky for relays:
+// Pick pins with no role at boot. Two common choices are risky for relays:
 //   GPIO 12 is a boot strapping pin (a relay board pulling it HIGH can stop the ESP32 from booting),
 //   GPIO 14 puts out a short PWM signal at boot (a relay can click on for a moment).
 // These four pins are plain outputs with no boot role.

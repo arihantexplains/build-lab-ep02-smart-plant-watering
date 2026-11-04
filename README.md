@@ -19,7 +19,7 @@
 
 Watering plants on three floors by hand, every day, is easy to forget and hard to do while you are away.
 This repo is the system that does it at home: a phone app and a schedule give the orders, an ESP32 on the terrace switches the pump and one tap per floor, and every admin gets a WhatsApp message when watering starts.
-It has run at our home since 2023; this is the clean, safer v2, rebuilt step by step in a demo environment so you can build it too.
+It runs at our home every day, and this repo is the full working build, set up step by step in a demo environment so you can build it too.
 
 ## Watch the video
 
@@ -80,7 +80,7 @@ Dataverse is the single source of truth: every order is a new row and the newest
 ├── dataverse/              schema.json, create-schema.mjs, manual maker portal steps
 ├── flows/                  the two Power Automate flows, step by step
 ├── app/                    the canvas app and its formulas
-├── docs/                   architecture, setup, placeholders, security, wiring, before and after
+├── docs/                   architecture, setup, placeholders, security, wiring
 ├── SECURITY.md  CONTRIBUTING.md  CHANGELOG.md  LICENSE
 └── .github/ISSUE_TEMPLATE/ bug report and setup question forms
 ```
