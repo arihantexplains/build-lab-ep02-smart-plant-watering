@@ -1,10 +1,10 @@
 <p align="center">
-  <img src="docs/images/social-preview.png" alt="Architect's Build Lab, Episode 4: Smart Plant Watering" width="100%">
+  <img src="docs/images/social-preview.png" alt="Architect's Build Lab, Episode 2: Smart Plant Watering" width="100%">
 </p>
 
-# build-lab-ep04-smart-plant-watering
+# build-lab-ep02-smart-plant-watering
 
-**Architect's Build Lab, Episode 4: smart plant watering with an ESP32, Dataverse and WhatsApp alerts**
+**Architect's Build Lab, Episode 2: smart plant watering with an ESP32, Dataverse and WhatsApp alerts**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Power Platform](https://img.shields.io/badge/Power%20Platform-742774.svg)](https://learn.microsoft.com/power-platform/)
@@ -59,6 +59,33 @@ flowchart LR
 
 Dataverse is the single source of truth: every order is a new row and the newest row per switch wins. The web API turns those rows into one small answer, so the board needs no Dataverse credentials and no OData. The ESP32 only drives relays and keeps its own safety rules. Messages are data too: a row, a flow, a plugin, then Meta. The full walkthrough, with the WhatsApp sequence and the ESP32 loop, is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
+## Wiring
+
+<img src="docs/images/wiring.png" alt="Wiring: ESP32, 4-channel relay board, motor contactor and three floor solenoids" width="720">
+
+| ESP32 pin | Relay | Switches |
+|---|---|---|
+| GPIO 26 | 1 | Motor (main pump), through a contactor |
+| GPIO 27 | 2 | Ground floor solenoid |
+| GPIO 25 | 3 | First floor solenoid |
+| GPIO 33 | 4 | Second floor solenoid |
+
+Most relay boards are active low (`RELAY_ACTIVE_LOW` in `config.h`). The ESP32 and the valves use separate supplies. Avoid GPIO 12 and 14 for relays: GPIO 12 is a boot strapping pin and GPIO 14 pulses at boot. Mains wiring (the motor, the contactor, RCD and MCB) is for a qualified electrician only. Full details: [docs/wiring.md](docs/wiring.md).
+
+## Run it locally (5 minutes, no cloud)
+
+```bash
+cd webapi
+npm test                                              # 15 checks
+MODE=mock DEVICE_KEY=any-long-test-key-123456 npm start
+# play the app: add a row, then ask like the ESP32 does
+curl -X POST localhost:8080/api/mock/rows -H "x-device-key: any-long-test-key-123456" \
+     -d '{"switch":"groundFloor","on":true,"source":"App"}'
+curl localhost:8080/api/switches -H "x-device-key: any-long-test-key-123456"
+```
+
+Mock mode is for the bench only, never on the internet. Then test the ESP32 sketch against it (relays only, no water, no mains): copy `arduino/CallAPI/secrets.example.h` to `secrets.h`, fill in your own Wi-Fi, API host and device key, and upload with board **ESP32 Dev Module**. More in [webapi/README.md](webapi/README.md) and [arduino/README.md](arduino/README.md).
+
 ## What's in the box
 
 | Part | What it does |
@@ -105,8 +132,8 @@ Build bottom-up and test each layer before the next. Every step is spelled out i
 6. **Plugins.** Build, test, sign and register:
 
    ```bash
-   git clone https://github.com/arihantexplains/build-lab-ep04-smart-plant-watering.git
-   cd build-lab-ep04-smart-plant-watering/plugins/SmartWatering.Plugins
+   git clone https://github.com/arihantexplains/build-lab-ep02-smart-plant-watering.git
+   cd build-lab-ep02-smart-plant-watering/plugins/SmartWatering.Plugins
    sn -k key.snk          # once; git-ignored, keep it private
    dotnet build -c Release
    cd ../SmartWatering.Plugins.Tests && dotnet test -c Release

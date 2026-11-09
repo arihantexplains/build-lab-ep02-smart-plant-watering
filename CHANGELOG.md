@@ -4,7 +4,7 @@ All notable changes to this repo. Dates are in the format YYYY-MM-DD.
 
 ## [1.0.0] - 2026-11-02
 
-First public release, alongside Architect's Build Lab, Episode 4.
+First public release, alongside Architect's Build Lab, Episode 2.
 
 ### Added
 
