@@ -1,0 +1,7 @@
+# gitleaks: all default rules, plus one allowlisted literal: the documented sample device key used in the mock-mode curl examples.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "sample device key for the local mock mode, not a secret"
+regexes = ['''any-long-test-key-123456''']
