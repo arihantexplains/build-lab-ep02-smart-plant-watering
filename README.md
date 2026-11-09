@@ -6,11 +6,14 @@
 
 **Architect's Build Lab, Episode 2: smart plant watering with an ESP32, Dataverse and WhatsApp alerts**
 
+> My phone waters more than 300 plants on three floors, three times a day, and nobody at home touches a tap. This is the full build: the board, the cloud and the alerts.
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Power Platform](https://img.shields.io/badge/Power%20Platform-742774.svg)](https://learn.microsoft.com/power-platform/)
 [![Dataverse](https://img.shields.io/badge/Dataverse-088142.svg)](https://learn.microsoft.com/power-apps/maker/data-platform/)
 [![Power Automate](https://img.shields.io/badge/Power%20Automate-0066FF.svg)](https://learn.microsoft.com/power-automate/)
 [![Azure App Service](https://img.shields.io/badge/Azure%20App%20Service-0078D4.svg)](https://learn.microsoft.com/azure/app-service/)
+[![IoT](https://img.shields.io/badge/IoT-ESP32%20%2B%204%20relays-0EA5E9.svg)](docs/wiring.md)
 [![ESP32](https://img.shields.io/badge/ESP32-Arduino%20C-E7352C.svg)](arduino/CallAPI/CallAPI.ino)
 [![WhatsApp Cloud API](https://img.shields.io/badge/WhatsApp-Cloud%20API-25D366.svg)](https://developers.facebook.com/docs/whatsapp/cloud-api/)
 [![.NET Framework 4.6.2](https://img.shields.io/badge/.NET%20Framework-4.6.2-512BD4.svg)](plugins/SmartWatering.Plugins/SmartWatering.Plugins.csproj)
@@ -58,6 +61,26 @@ flowchart LR
 ```
 
 Dataverse is the single source of truth: every order is a new row and the newest row per switch wins. The web API turns those rows into one small answer, so the board needs no Dataverse credentials and no OData. The ESP32 only drives relays and keeps its own safety rules. Messages are data too: a row, a flow, a plugin, then Meta. The full walkthrough, with the WhatsApp sequence and the ESP32 loop, is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+## How it works
+
+**The web API (one call instead of four).** The ESP32 never talks to Dataverse. Every 1.5 seconds it calls `GET /api/switches` with its device key. The API signs in to Dataverse with a read-only service account, keeps the token until just before it expires, reads the newest Switch Command row for each switch in one query, and answers with four true or false values. A missing switch counts as false. If Dataverse is down the API answers with an error, and the board counts a failed poll. Code: [webapi/server.mjs](webapi/server.mjs).
+
+**The plugins (messages are data too).** When an ON row lands in Switch Command, `SwitchCommandNotifyPlugin` adds a row to Send WhatsApp Message. When that row is set to Send = Yes, a flow calls the `SendWhatsAppMessagePlugin` Custom API, which reads the admin numbers from an environment variable, checks each one, sends one request per number to the Meta WhatsApp Cloud API and writes the result back on the row. `GetSwitchStatesPlugin` is the optional Custom API version of the newest-row-per-switch read. Code: [plugins/](plugins/), with 41 unit tests.
+
+**The schedule and the app write rows, nothing else.** The canvas app adds one row per toggle. The scheduled flow at 6 AM, 12 PM and 4 PM adds rows floor by floor, opening the next tap before it closes the previous one. Neither of them ever talks to the hardware.
+
+## The safety rules on the board
+
+The cloud decides what should happen. The board decides what is allowed to happen. All of these live in [arduino/CallAPI/CallAPI.ino](arduino/CallAPI/CallAPI.ino), with the numbers in [config.h](arduino/CallAPI/config.h):
+
+| Rule | What it does |
+|---|---|
+| All off at boot | Every relay is switched off before Wi-Fi even starts, and active-low boards are handled by one constant. |
+| Tap before motor | The motor may only start 2 seconds after a tap is open, and the last tap closes 2 seconds after the motor stops. No tap open, no motor. |
+| 10 minute limit | No switch stays on longer than 10 minutes, whatever the app or the flow says. After an auto-off the switch stays latched off until the API reports false once. |
+| Fail-safe | 10 failed polls in a row (about 15 seconds without an answer) and everything goes off. Wi-Fi down, internet down or API down, it does not matter which. |
+| Real HTTPS | The certificate is checked against a pinned root, every call has a 3 second timeout, and Wi-Fi reconnects on its own. |
 
 ## Wiring
 
@@ -107,7 +130,7 @@ Mock mode is for the bench only, never on the internet. Then test the ESP32 sket
 ├── dataverse/              schema.json, create-schema.mjs, manual maker portal steps
 ├── flows/                  the two Power Automate flows, step by step
 ├── app/                    the canvas app and its formulas
-├── docs/                   architecture, setup, placeholders, security, wiring
+├── docs/                   architecture, setup, permissions, placeholders, security, wiring
 ├── SECURITY.md  CONTRIBUTING.md  CHANGELOG.md  LICENSE
 └── .github/ISSUE_TEMPLATE/ bug report and setup question forms
 ```
@@ -143,6 +166,8 @@ Build bottom-up and test each layer before the next. Every step is spelled out i
 7. **WhatsApp.** Phone number ID, token in Key Vault, admin numbers, template, and the send flow: [flows/send-whatsapp-message.md](flows/send-whatsapp-message.md).
 8. **Schedule.** [flows/scheduled-watering.md](flows/scheduled-watering.md), with your time zone set on the trigger.
 9. **Real install.** Electrician, then one full run with water while you watch: [docs/wiring.md](docs/wiring.md).
+
+Who may do what, and what was left out on purpose: [docs/permissions.md](docs/permissions.md).
 
 ## Placeholders
 
@@ -199,6 +224,12 @@ Known limits, stated plainly (shared device key, flash not encrypted, "sent" mea
 **Does WhatsApp cost money?** Meta charges per message for some conversation types, and business-initiated template messages are charged in most countries. Check Meta's current pricing for your country.
 
 **Can I add a fourth floor or a second pump?** Yes: a new choice value, a new key in the API answer, a new entry in the sketch's switch table, a new pin in `config.h`, and a new alert text in `Switches.cs`.
+
+## More from Architect's Build Lab
+
+- Episode 1, an AI agent for user onboarding with a Dataverse plugin built from scratch: [build-lab-ep01-it-onboarding-agent](https://github.com/arihantexplains/build-lab-ep01-it-onboarding-agent) and [the video](https://youtu.be/ipQJsIAqqNM)
+- The whole series on YouTube: [Architect's Build Lab playlist](https://www.youtube.com/playlist?list=PLAts8F4bMzpY)
+- New to Power Apps, Dataverse or Power Automate? Start with the free [Power Platform Fundamentals course](https://www.youtube.com/playlist?list=PLZDG2cQXK0IM)
 
 ## Credits
 
