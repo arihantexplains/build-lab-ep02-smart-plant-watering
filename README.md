@@ -26,11 +26,9 @@ It runs at our home every day, and this repo is the full working build, set up s
 
 ## Watch the video
 
-<!-- VIDEO: replace the next line with the YouTube link after upload -->
-**Coming soon, link added after upload.** Subscribe at [youtube.com/@arihant.explains](https://www.youtube.com/@arihant.explains) to catch it.
+**[Watch the full build on YouTube](https://youtu.be/1v5VGksp0go)** (34 minutes, chapters in the description). More episodes: [youtube.com/@arihant.explains](https://www.youtube.com/@arihant.explains).
 
-<img src="docs/images/thumbnail.png" alt="Smart Plant Watering video thumbnail" width="640">
-<!-- THUMBNAIL: link this image to the video once it is live -->
+<a href="https://youtu.be/1v5VGksp0go"><img src="docs/images/thumbnail.png" alt="Watch: Power Platform runs my garden (Architect's Build Lab, Episode 2)" width="640"></a>
 
 ## What it achieves
 
